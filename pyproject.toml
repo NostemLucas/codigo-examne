@@ -1,0 +1,7 @@
+[project]
+name = "examen"
+version = "0.1.0"
+description = "Codigo de examen de Python"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
