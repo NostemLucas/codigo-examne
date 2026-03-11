@@ -4,12 +4,11 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 
 ## Integrantes del Equipo
 
-- **Integrante 1**: Módulo de Categorías
+- **Integrante 1**: Módulo de Categorías/Productos
   - Rama: `modulo-categorias-nombre_estudiante`
-- **Integrante 2**: Módulo de Productos con subida de imágenes
-  - Rama: `modulo-productos-nombre_estudiante`
-- **Integrante 3**: Módulo de Pedidos/Ventas
-  - Rama: `modulo-pedidos-nombre_estudiante`
+  - rama flask-admin: `admin-categorias`
+    **Integrante 2**: Módulo de Categorías/Productos
+  - Rama: `modulo-categorias-nombre_estudiante`
 
 ## Características Principales
 
@@ -36,6 +35,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 5. **detalles_pedido**: Ítems de cada pedido
 
 #### Relaciones:
+
 - Usuario → Pedidos (1:N)
 - Categoría → Productos (1:N)
 - Producto → DetallesPedido (1:N)
@@ -44,9 +44,11 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 ### 3. Módulos CRUD
 
 #### Módulo 1: Categorías (Integrante 1)
+
 **Ubicación**: `app/categorias/`
 
 **Funcionalidades**:
+
 - ✅ Crear categorías con validación Pydantic
 - ✅ Listar categorías con búsqueda y filtros
 - ✅ Ver detalle de categoría con productos asociados
@@ -56,14 +58,17 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 - ✅ Generación automática de slug único
 
 **Validaciones**:
+
 - Nombre mínimo 3 caracteres
 - Descripción máximo 500 caracteres
 - Slug único generado automáticamente
 
 #### Módulo 2: Productos (Integrante 2)
+
 **Ubicación**: `app/productos/`
 
 **Funcionalidades**:
+
 - ✅ Crear productos con subida de imagen
 - ✅ Listar productos con búsqueda avanzada y filtros
 - ✅ Ver detalle de producto con relacionados
@@ -74,6 +79,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 - ✅ **Subida y optimización de imágenes** (RETO ADICIONAL)
 
 **Validaciones**:
+
 - Nombre mínimo 3 caracteres
 - Precio mayor a 0, máximo $9,999,999.99
 - Stock no negativo, máximo 999,999
@@ -83,9 +89,11 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 - Optimización automática a 1200x1200px
 
 #### Módulo 3: Pedidos (Integrante 3)
+
 **Ubicación**: `app/pedidos/`
 
 **Funcionalidades**:
+
 - ✅ Crear pedidos con múltiples productos
 - ✅ Listar pedidos (clientes ven solo los suyos)
 - ✅ Ver detalle de pedido
@@ -96,6 +104,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 - ✅ Generación automática de número de pedido
 
 **Estados de pedido**:
+
 - `pendiente`: Pedido creado
 - `procesando`: En preparación
 - `enviado`: En camino
@@ -103,6 +112,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 - `cancelado`: Cancelado (devuelve stock)
 
 **Validaciones**:
+
 - Dirección mínimo 10 caracteres
 - Teléfono con al menos un dígito
 - Al menos un producto en el pedido
@@ -113,6 +123,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 ### 4. Flask-Admin
 
 **Panel de administración** con acceso restringido solo para administradores:
+
 - Gestión completa de usuarios
 - Gestión de categorías, productos y pedidos
 - Vistas personalizadas con `SecureModelView`
@@ -125,6 +136,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 **Implementación**: `app/productos/utils.py`
 
 **Características**:
+
 - ✅ Subida de imágenes para productos
 - ✅ Validación de extensiones permitidas
 - ✅ Validación de tamaño máximo (16MB)
@@ -138,6 +150,7 @@ Sistema web de gestión de ventas de flores y plantas desarrollado con Flask, SQ
 - ✅ Carpeta organizada: `app/static/uploads/productos/`
 
 **Aprendizajes**:
+
 - Manejo de FileStorage de Flask
 - Procesamiento de imágenes con PIL/Pillow
 - Optimización de almacenamiento
@@ -293,123 +306,7 @@ La aplicación estará disponible en: `http://localhost:5000`
 ### Ramas del proyecto
 
 ```
-master (o main)          # Rama principal protegida
-├── modulo-categorias-nombre1
-├── modulo-productos-nombre2
-└── modulo-pedidos-nombre3
-```
-
-### Workflow para cada integrante
-
-#### 1. Crear y cambiar a tu rama
-
-```bash
-# Integrante 1
-git checkout -b modulo-categorias-juan
-
-# Integrante 2
-git checkout -b modulo-productos-maria
-
-# Integrante 3
-git checkout -b modulo-pedidos-pedro
-```
-
-#### 2. Trabajar en tu módulo
-
-```bash
-# Hacer cambios en tu módulo
-# ...
-
-# Agregar cambios
-git add app/categorias/  # o productos/ o pedidos/
-git add app/templates/categorias/  # si aplica
-
-# Commit con mensaje descriptivo
-git commit -m "feat(categorias): agregar búsqueda y filtros"
-```
-
-#### 3. Subir cambios a tu rama
-
-```bash
-git push origin modulo-categorias-juan
-```
-
-#### 4. Crear Pull Request
-
-1. Ir a GitHub
-2. Crear Pull Request desde tu rama hacia `master`
-3. Describir los cambios realizados
-4. Solicitar revisión de compañeros
-5. Esperar aprobación y merge
-
-### Comandos útiles
-
-```bash
-# Ver estado
-git status
-
-# Ver ramas
-git branch
-
-# Cambiar de rama
-git checkout nombre-rama
-
-# Actualizar tu rama con master
-git checkout master
-git pull origin master
-git checkout tu-rama
-git merge master
-
-# Ver historial
-git log --oneline --graph --all
-```
-
-## Comandos CLI Personalizados
-
-```bash
-# Inicializar base de datos con categorías de ejemplo
-flask init-db
-
-# Crear usuario administrador
-flask create-admin
-
-# Abrir shell con contexto (modelos disponibles)
-flask shell
-
-# Crear migración
-flask db migrate -m "Descripción"
-
-# Aplicar migraciones
-flask db upgrade
-
-# Ejecutar aplicación
-flask run
-```
-
-## Testing
-
-### Crear datos de prueba
-
-```python
-# En flask shell
-flask shell
-
->>> # Crear categoría
->>> cat = Categoria(nombre="Rosas", descripcion="Rosas hermosas", slug="rosas")
->>> db.session.add(cat)
->>> db.session.commit()
-
->>> # Crear producto
->>> prod = Producto(
-...     nombre="Rosa Roja",
-...     descripcion="Rosa roja premium",
-...     precio=15.99,
-...     stock=100,
-...     sku="FLO-12345",
-...     categoria_id=cat.id
-... )
->>> db.session.add(prod)
->>> db.session.commit()
+completar
 ```
 
 ## Usuarios de Prueba
@@ -439,6 +336,7 @@ rol: cliente
 ## Rutas Principales
 
 ### Públicas
+
 - `/` - Página principal
 - `/productos` - Catálogo de productos
 - `/productos/<id>` - Detalle de producto
@@ -447,12 +345,14 @@ rol: cliente
 - `/auth/registro` - Registro de usuario
 
 ### Autenticadas (Cliente)
+
 - `/auth/perfil` - Perfil del usuario
 - `/pedidos` - Mis pedidos
 - `/pedidos/crear` - Crear nuevo pedido
 - `/pedidos/<id>` - Detalle de pedido
 
 ### Vendedor/Admin
+
 - `/categorias/crear` - Crear categoría
 - `/categorias/<id>/editar` - Editar categoría
 - `/productos/crear` - Crear producto
@@ -460,70 +360,13 @@ rol: cliente
 - `/pedidos/<id>/editar` - Editar pedido
 
 ### Solo Admin
+
 - `/admin/` - Panel de administración Flask-Admin
-
-## Documentación del Reto Adicional
-
-### Subida y Optimización de Imágenes
-
-**Archivo**: `app/productos/utils.py`
-
-#### ¿Cómo funciona?
-
-1. **Validación**: Se verifica extensión y tamaño del archivo
-2. **Seguridad**: Nombres únicos con UUID para evitar sobrescritura
-3. **Almacenamiento**: Guardado en `app/static/uploads/productos/`
-4. **Optimización**: Pillow redimensiona y comprime la imagen
-5. **Limpieza**: Al actualizar/eliminar, se borra la imagen anterior
-
-#### ¿Qué aprendimos?
-
-- **Manejo de archivos** con Flask (FileStorage)
-- **Validación de archivos** (extensión, tamaño)
-- **Procesamiento de imágenes** con Pillow/PIL
-- **Optimización automática** (resize, compress)
-- **Gestión de almacenamiento** (crear carpetas, eliminar archivos)
-- **Seguridad** (nombres únicos, validaciones)
-- **Experiencia de usuario** (preview, actualización)
-
-#### Código clave
-
-```python
-# Guardar y optimizar imagen
-imagen_path = guardar_imagen(archivo, carpeta='productos')
-
-# La función internamente:
-# 1. Valida extensión y tamaño
-# 2. Genera nombre único (UUID)
-# 3. Guarda archivo
-# 4. Optimiza con Pillow (resize + compress)
-# 5. Retorna ruta relativa
-```
-
-## Contribuir
-
-1. Fork el proyecto
-2. Crea tu rama (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'feat: agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
-
-## Convenciones de Commits
-
-- `feat:` Nueva funcionalidad
-- `fix:` Corrección de bug
-- `docs:` Cambios en documentación
-- `style:` Formato, punto y coma faltante, etc.
-- `refactor:` Refactorización de código
-- `test:` Agregar tests
-- `chore:` Tareas de mantenimiento
 
 ## Licencia
 
-Este proyecto fue desarrollado como examen de Python con fines educativos.
-
 ## Contacto
 
-- **Equipo**: [Nombres de los integrantes]
-- **Repositorio**: [URL del repositorio]
+- **Equipo**:
+- **Repositorio**:
 - **Fecha**: Marzo 2026

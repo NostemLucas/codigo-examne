@@ -10,7 +10,13 @@ Guía rápida para ejecutar el proyecto en menos de 5 minutos.
 
 ## Pasos Rápidos
 
-### 1. Instalar dependencias
+uv gestiona las versiones de python para instalarlo
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+posterior para instalar las dependencias del proyecto
 
 ```bash
 uv sync
@@ -30,7 +36,8 @@ EXIT;
 cp .env.example .env
 ```
 
-Editar `.env` con tus credenciales de MySQL:
+Editar `.env` con las credenciales de MySQL:
+
 ```env
 DATABASE_URL=mysql+pymysql://root:tu_password@localhost/floreria_db
 ```
@@ -71,11 +78,13 @@ Abrir navegador en: http://localhost:5000
 Después de ejecutar `flask create-admin`:
 
 **Admin**
+
 - Usuario: admin
 - Password: admin123
 - Acceso total
 
 **Crear vendedor** (en flask shell):
+
 ```python
 flask shell
 >>> from app.models import Usuario
@@ -87,18 +96,21 @@ flask shell
 ```
 
 **Cliente** (registrarse desde la web):
+
 - Ir a /auth/registro
 - Completar formulario
 
 ## Probar Funcionalidades
 
 ### Como Admin:
+
 1. Login con admin/admin123
 2. Ir a /admin/ para panel de administración
 3. Crear categorías desde /categorias/crear
 4. Crear productos desde /productos/crear (con imagen)
 
 ### Como Cliente:
+
 1. Registrarse en /auth/registro
 2. Ver productos en /productos
 3. Crear pedido en /pedidos/crear
@@ -106,14 +118,7 @@ flask shell
 ## Estructura de Ramas
 
 ```bash
-# Integrante 1 - Categorías
-git checkout -b modulo-categorias-tunombre
-
-# Integrante 2 - Productos
-git checkout -b modulo-productos-tunombre
-
-# Integrante 3 - Pedidos
-git checkout -b modulo-pedidos-tunombre
+completar
 ```
 
 ## Comandos Útiles
@@ -134,53 +139,3 @@ flask db upgrade
 # Revertir migración
 flask db downgrade
 ```
-
-## Problemas Comunes
-
-### Error de conexión MySQL
-- Verificar que MySQL esté corriendo
-- Verificar credenciales en .env
-- Verificar que la base de datos exista
-
-### Error de importación
-- Verificar que estás en el entorno virtual: `source .venv/bin/activate`
-- Reinstalar dependencias: `uv sync`
-
-### Error de permisos
-- Linux/Mac: Verificar permisos de carpeta uploads: `chmod 755 app/static/uploads`
-
-### Puerto en uso
-- Cambiar puerto: `flask run --port=5001`
-
-## Desarrollo
-
-### Ejecutar en modo debug
-
-```bash
-export FLASK_ENV=development  # Linux/Mac
-set FLASK_ENV=development  # Windows
-
-flask run --debug
-```
-
-### Ver logs
-
-Los logs se muestran en la consola donde ejecutaste `flask run`.
-
-## Testing Manual
-
-1. **Auth**: Registro, login, logout
-2. **Categorías**: Crear, editar, eliminar, listar
-3. **Productos**: Crear con imagen, editar, eliminar
-4. **Pedidos**: Crear, ver, cambiar estado
-
-## Siguiente Paso
-
-Lee el [README.md](README.md) completo para documentación detallada.
-
-## Soporte
-
-Si encuentras problemas, revisa:
-1. Los logs en la consola
-2. El README.md completo
-3. La documentación de cada módulo
