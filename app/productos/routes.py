@@ -25,7 +25,6 @@ def listar():
     Listar productos con búsqueda y filtros avanzados
     Acceso: Público
     """
-    # Obtener parámetros de búsqueda y filtros
     busqueda = request.args.get('busqueda', '', type=str)
     categoria_id = request.args.get('categoria_id', None, type=int)
     precio_min = request.args.get('precio_min', None, type=float)
@@ -33,31 +32,25 @@ def listar():
     solo_destacados = request.args.get('destacados', False, type=bool)
     orden = request.args.get('orden', 'nombre', type=str)
 
-    # Query base
     query = Producto.query.filter_by(activo=True)
 
-    # Aplicar búsqueda por nombre o descripción
     if busqueda:
         query = query.filter(
             (Producto.nombre.like(f'%{busqueda}%')) |
             (Producto.descripcion.like(f'%{busqueda}%'))
         )
 
-    # Filtrar por categoría
     if categoria_id:
         query = query.filter_by(categoria_id=categoria_id)
 
-    # Filtrar por rango de precios
     if precio_min is not None:
         query = query.filter(Producto.precio >= precio_min)
     if precio_max is not None:
         query = query.filter(Producto.precio <= precio_max)
 
-    # Filtrar solo destacados
     if solo_destacados:
         query = query.filter_by(destacado=True)
 
-    # Aplicar orden
     if orden == 'nombre':
         query = query.order_by(Producto.nombre.asc())
     elif orden == 'precio_asc':
@@ -69,13 +62,11 @@ def listar():
     elif orden == 'stock':
         query = query.order_by(Producto.stock.desc())
 
-    # Paginación
     page = request.args.get('page', 1, type=int)
     per_page = 12
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     productos = pagination.items
 
-    # Obtener todas las categorías para el filtro
     categorias = Categoria.query.filter_by(activo=True).all()
 
     return render_template('productos/listar.html',
@@ -98,7 +89,6 @@ def ver(id):
     """
     producto = Producto.query.get_or_404(id)
 
-    # Productos relacionados (misma categoría)
     productos_relacionados = Producto.query.filter(
         Producto.categoria_id == producto.categoria_id,
         Producto.id != producto.id,
@@ -122,57 +112,46 @@ def crear():
     if request.method == 'POST':
         form_data = None
         try:
-            # Preparar datos para validación
             form_data = request.form.to_dict()
 
-            # Convertir tipos
             form_data['precio'] = Decimal(form_data.get('precio', 0))
             form_data['stock'] = int(form_data.get('stock', 0))
             form_data['categoria_id'] = int(form_data.get('categoria_id'))
             form_data['activo'] = form_data.get('activo') == 'on'
             form_data['destacado'] = form_data.get('destacado') == 'on'
 
-            # Generar SKU si no se proporcionó
             if not form_data.get('sku'):
                 form_data['sku'] = generar_sku_unico()
 
-            # Validar datos con Pydantic
             datos = ProductoCreateSchema(**form_data)
 
-            # Verificar que la categoría existe
             categoria = Categoria.query.get(datos.categoria_id)
             if not categoria:
                 flash('La categoría seleccionada no existe.', 'danger')
                 return render_template('productos/crear.html', categorias=categorias, form_data=form_data)
 
-            # Verificar que el SKU sea único
             if Producto.query.filter_by(sku=datos.sku).first():
                 flash(f'El SKU "{datos.sku}" ya está en uso.', 'danger')
                 return render_template('productos/crear.html', categorias=categorias, form_data=form_data)
 
-            # Manejar imagen
             imagen_path = None
             if 'imagen' in request.files:
                 archivo = request.files['imagen']
                 if archivo and archivo.filename != '':
-                    # Validar tamaño
                     if not validar_tamano_archivo(archivo):
                         flash('La imagen supera el tamaño máximo permitido (16 MB).', 'danger')
                         return render_template('productos/crear.html', categorias=categorias, form_data=form_data)
 
-                    # Validar extensión
                     if not extension_permitida(archivo.filename):
                         flash('Formato de imagen no permitido. Usa: PNG, JPG, JPEG, GIF, WEBP', 'danger')
                         return render_template('productos/crear.html', categorias=categorias, form_data=form_data)
 
-                    # Guardar imagen
                     try:
                         imagen_path = guardar_imagen(archivo, carpeta='productos')
                     except Exception as e:
                         flash(f'Error al guardar imagen: {str(e)}', 'danger')
                         return render_template('productos/crear.html', categorias=categorias, form_data=form_data)
 
-            # Crear nuevo producto
             nuevo_producto = Producto(
                 nombre=datos.nombre,
                 descripcion=datos.descripcion,
@@ -222,7 +201,6 @@ def test_editar(id):
         print(f"Form data: {request.form.to_dict()}")
         print("=" * 50)
 
-        # Actualizar solo los campos básicos
         producto.nombre = request.form.get('nombre')
         producto.precio = Decimal(request.form.get('precio'))
         producto.stock = int(request.form.get('stock'))
@@ -251,10 +229,8 @@ def editar(id):
 
     if request.method == 'POST':
         try:
-            # Preparar datos para validación
             form_data = request.form.to_dict()
 
-            # Convertir tipos si están presentes
             if 'precio' in form_data and form_data['precio']:
                 form_data['precio'] = Decimal(form_data['precio'])
             if 'stock' in form_data and form_data['stock']:
@@ -265,10 +241,8 @@ def editar(id):
             form_data['activo'] = form_data.get('activo') == 'on'
             form_data['destacado'] = form_data.get('destacado') == 'on'
 
-            # Validar datos con Pydantic
             datos = ProductoUpdateSchema(**form_data)
 
-            # Actualizar campos
             if datos.nombre is not None:
                 producto.nombre = datos.nombre
             if datos.descripcion is not None:
@@ -278,13 +252,11 @@ def editar(id):
             if datos.stock is not None:
                 producto.stock = datos.stock
             if datos.categoria_id is not None:
-                # Verificar que la categoría existe
                 if not Categoria.query.get(datos.categoria_id):
                     flash('La categoría seleccionada no existe.', 'danger')
                     return render_template('productos/editar.html', producto=producto, categorias=categorias)
                 producto.categoria_id = datos.categoria_id
             if datos.sku is not None:
-                # Verificar que el SKU sea único (excluyendo el producto actual)
                 if Producto.query.filter(Producto.sku == datos.sku, Producto.id != id).first():
                     flash(f'El SKU "{datos.sku}" ya está en uso.', 'danger')
                     return render_template('productos/editar.html', producto=producto, categorias=categorias)
@@ -294,25 +266,20 @@ def editar(id):
             if datos.destacado is not None:
                 producto.destacado = datos.destacado
 
-            # Manejar nueva imagen
             if 'imagen' in request.files:
                 archivo = request.files['imagen']
                 if archivo and archivo.filename != '':
-                    # Validar tamaño
                     if not validar_tamano_archivo(archivo):
                         flash('La imagen supera el tamaño máximo permitido (16 MB).', 'danger')
                         return render_template('productos/editar.html', producto=producto, categorias=categorias)
 
-                    # Validar extensión
                     if not extension_permitida(archivo.filename):
                         flash('Formato de imagen no permitido. Usa: PNG, JPG, JPEG, GIF, WEBP', 'danger')
                         return render_template('productos/editar.html', producto=producto, categorias=categorias)
 
-                    # Eliminar imagen anterior
                     if producto.imagen:
                         eliminar_imagen(producto.imagen)
 
-                    # Guardar nueva imagen
                     try:
                         imagen_path = guardar_imagen(archivo, carpeta='productos')
                         producto.imagen = imagen_path
@@ -320,7 +287,6 @@ def editar(id):
                         flash(f'Error al guardar imagen: {str(e)}', 'danger')
                         return render_template('productos/editar.html', producto=producto, categorias=categorias)
 
-            # Commit de los cambios
             try:
                 db.session.commit()
                 flash(f'Producto "{producto.nombre}" actualizado exitosamente.', 'success')
@@ -362,12 +328,10 @@ def eliminar(id):
     producto = Producto.query.get_or_404(id)
 
     try:
-        # Verificar si tiene detalles de pedido
         if producto.detalles_pedido.count() > 0:
             flash(f'No se puede eliminar el producto "{producto.nombre}" porque está asociado a pedidos.', 'warning')
             return redirect(url_for('productos.ver', id=producto.id))
 
-        # Eliminar imagen si existe
         if producto.imagen:
             eliminar_imagen(producto.imagen)
 
@@ -398,7 +362,6 @@ def eliminar_imagen_producto(id):
             flash('El producto no tiene imagen asociada.', 'info')
             return redirect(url_for('productos.editar', id=producto.id))
 
-        # Eliminar imagen
         eliminar_imagen(producto.imagen)
         producto.imagen = None
         db.session.commit()

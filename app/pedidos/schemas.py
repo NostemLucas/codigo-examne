@@ -53,8 +53,7 @@ class PedidoCreateSchema(BaseModel):
         """Validar que haya al menos un producto"""
         if not v:
             raise ValueError('El pedido debe tener al menos un producto')
-        # Verificar que no haya productos duplicados
-        productos_ids = [d.producto_id for d in v]
+        # productos_ids = [d.producto_id for d in v]
         if len(productos_ids) != len(set(productos_ids)):
             raise ValueError('No puede haber productos duplicados en el pedido')
         return v
@@ -105,7 +104,6 @@ def generar_numero_pedido():
     import string
     from datetime import datetime
 
-    # Formato: PED-YYYYMMDD-XXXX
     fecha = datetime.now().strftime('%Y%m%d')
     codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
     return f"PED-{fecha}-{codigo}"

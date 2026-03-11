@@ -1,8 +1,10 @@
 """App Factory para la aplicación Flask"""
 
 from flask import Flask
+from flask_admin import Admin
 from app.config import config
-from app.extensions import db, migrate, login_manager, admin
+from app.extensions import db, migrate, login_manager
+from app import extensions
 
 
 def create_app(config_name='default'):
@@ -25,7 +27,14 @@ def create_app(config_name='default'):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    admin.init_app(app)
+
+    # Inicializar Flask-Admin con vista personalizada
+    from app.admin_views import SecureAdminIndexView
+    extensions.admin = Admin(
+        app,
+        name='Florería Admin',
+        index_view=SecureAdminIndexView(name='Inicio', url='/admin')
+    )
 
     # Registrar blueprints (módulos)
     register_blueprints(app)
@@ -65,13 +74,18 @@ def configure_admin(app):
     """Configurar Flask-Admin con vistas personalizadas"""
     from app.models import Usuario, Categoria, Producto, Pedido, DetallePedido
     from app.admin_views import SecureModelView
+    from flask_admin.menu import MenuLink
 
     with app.app_context():
-        admin.add_view(SecureModelView(Usuario, db.session, name='Usuarios', category='Gestión'))
-        admin.add_view(SecureModelView(Categoria, db.session, name='Categorías', category='Gestión'))
-        admin.add_view(SecureModelView(Producto, db.session, name='Productos', category='Gestión'))
-        admin.add_view(SecureModelView(Pedido, db.session, name='Pedidos', category='Ventas'))
-        admin.add_view(SecureModelView(DetallePedido, db.session, name='Detalles', category='Ventas'))
+        # Agregar link para volver al sitio principal
+        extensions.admin.add_link(MenuLink(name='← Volver al Sitio', url='/'))
+
+        # Agregar vistas de modelos
+        extensions.admin.add_view(SecureModelView(Usuario, db.session, name='Usuarios', category='Gestión'))
+        extensions.admin.add_view(SecureModelView(Categoria, db.session, name='Categorías', category='Gestión'))
+        extensions.admin.add_view(SecureModelView(Producto, db.session, name='Productos', category='Gestión'))
+        extensions.admin.add_view(SecureModelView(Pedido, db.session, name='Pedidos', category='Ventas'))
+        extensions.admin.add_view(SecureModelView(DetallePedido, db.session, name='Detalles', category='Ventas'))
 
 
 def register_commands(app):

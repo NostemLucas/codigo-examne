@@ -19,34 +19,32 @@ def listar():
     Listar todas las categorías con búsqueda y filtros
     Acceso: Público
     """
-    # Obtener parámetros de búsqueda y filtros
+   
     busqueda = request.args.get('busqueda', '', type=str)
     filtro_activo = request.args.get('activo', 'todos', type=str)
     orden = request.args.get('orden', 'nombre', type=str)
 
-    # Query base
+  
     query = Categoria.query
 
-    # Aplicar búsqueda por nombre
+
     if busqueda:
         query = query.filter(Categoria.nombre.like(f'%{busqueda}%'))
 
-    # Aplicar filtro de activo/inactivo
     if filtro_activo == 'activo':
         query = query.filter_by(activo=True)
     elif filtro_activo == 'inactivo':
         query = query.filter_by(activo=False)
 
-    # Aplicar orden
+
     if orden == 'nombre':
         query = query.order_by(Categoria.nombre.asc())
     elif orden == 'fecha':
         query = query.order_by(Categoria.fecha_creacion.desc())
     elif orden == 'productos':
-        # Ordenar por cantidad de productos (requiere join)
+       
         query = query.outerjoin(Categoria.productos).group_by(Categoria.id).order_by(db.func.count().desc())
 
-    # Paginación
     page = request.args.get('page', 1, type=int)
     per_page = 10
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -67,7 +65,6 @@ def ver(id):
     Acceso: Público
     """
     categoria = Categoria.query.get_or_404(id)
-    # Obtener productos de esta categoría
     productos = categoria.productos.filter_by(activo=True).all()
 
     return render_template('categorias/ver.html',
@@ -84,20 +81,17 @@ def crear():
     """
     if request.method == 'POST':
         try:
-            # Validar datos con Pydantic
+
             datos = CategoriaCreateSchema(**request.form.to_dict())
 
-            # Generar slug único
             slug_base = generar_slug(datos.nombre)
             slug = slug_base
             contador = 1
 
-            # Verificar que el slug sea único
             while Categoria.query.filter_by(slug=slug).first():
                 slug = f"{slug_base}-{contador}"
                 contador += 1
 
-            # Crear nueva categoría
             nueva_categoria = Categoria(
                 nombre=datos.nombre,
                 descripcion=datos.descripcion,
@@ -112,7 +106,6 @@ def crear():
             return redirect(url_for('categorias.ver', id=nueva_categoria.id))
 
         except ValidationError as e:
-            # Mostrar errores de validación
             for error in e.errors():
                 campo = error['loc'][0]
                 mensaje = error['msg']
@@ -136,14 +129,10 @@ def editar(id):
 
     if request.method == 'POST':
         try:
-            # Validar datos con Pydantic
             datos = CategoriaUpdateSchema(**request.form.to_dict())
 
-            # Actualizar campos si se proporcionaron
             if datos.nombre is not None:
-                # Verificar si cambió el nombre
                 if datos.nombre != categoria.nombre:
-                    # Generar nuevo slug
                     slug_base = generar_slug(datos.nombre)
                     slug = slug_base
                     contador = 1
@@ -194,7 +183,6 @@ def eliminar(id):
     categoria = Categoria.query.get_or_404(id)
 
     try:
-        # Verificar si tiene productos asociados
         if categoria.productos.count() > 0:
             flash(f'No se puede eliminar la categoría "{categoria.nombre}" porque tiene {categoria.productos.count()} productos asociados.', 'warning')
             return redirect(url_for('categorias.ver', id=categoria.id))

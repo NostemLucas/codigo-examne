@@ -100,7 +100,6 @@ footer {
   margin-top: auto;
 }
 
-/* Paginación */
 .pagination {
   margin-top: 2rem;
 }
@@ -118,7 +117,6 @@ footer {
   color: #1e7e34;
 }
 
-/* Breadcrumbs */
 .breadcrumb {
   background-color: transparent;
   padding: 0.75rem 0;
@@ -128,7 +126,6 @@ footer {
   color: var(--success-color);
 }
 
-/* Timeline personalizada */
 .timeline {
   position: relative;
   padding: 20px 0;
@@ -168,7 +165,6 @@ footer {
   font-size: 12px;
 }
 
-/* Productos */
 .producto-item {
   background-color: #f8f9fa;
   transition: all 0.3s ease;
@@ -178,13 +174,11 @@ footer {
   background-color: #e9ecef;
 }
 
-/* Preview de imagen */
 #imagePreview,
 #newImagePreview {
   transition: all 0.3s ease;
 }
 
-/* Tabla responsive mejorada */
 .table-responsive {
   border-radius: 8px;
 }
@@ -201,7 +195,6 @@ footer {
   background-color: #f1f3f5;
 }
 
-/* Animaciones */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -218,7 +211,6 @@ footer {
   animation: fadeIn 0.5s ease;
 }
 
-/* Estilos para estados de pedido */
 .badge.bg-pendiente {
   background-color: #6c757d !important;
 }
@@ -240,7 +232,6 @@ footer {
   background-color: #dc3545 !important;
 }
 
-/* Estilos para imágenes de productos */
 img.producto-imagen {
   transition: transform 0.3s ease;
 }
@@ -249,7 +240,6 @@ img.producto-imagen:hover {
   transform: scale(1.1);
 }
 
-/* Responsividad mejorada */
 @media (max-width: 768px) {
   .jumbotron {
     padding: 2rem !important;
@@ -270,12 +260,10 @@ img.producto-imagen:hover {
   }
 }
 
-/* Scroll suave */
 html {
   scroll-behavior: smooth;
 }
 
-/* Sombras personalizadas */
 .shadow-sm {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
 }
@@ -284,14 +272,12 @@ html {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
 }
 
-/* Loading spinner (opcional para futuras mejoras) */
 .spinner-border-sm {
   width: 1rem;
   height: 1rem;
   border-width: 0.15em;
 }
 
-/* Estilos para el panel de admin */
 .admin-link {
   transition: all 0.3s ease;
 }
@@ -300,7 +286,6 @@ html {
   transform: translateY(-2px);
 }
 
-/* Mejorar el aspecto de los checkboxes y switches */
 .form-check-input:checked {
   background-color: var(--success-color);
   border-color: var(--success-color);
@@ -311,12 +296,10 @@ html {
   border-color: var(--success-color);
 }
 
-/* Estilos para mensajes flash */
 .alert-dismissible .btn-close {
   padding: 0.75rem;
 }
 
-/* Mejorar dropdowns */
 .dropdown-menu {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -328,13 +311,11 @@ html {
   color: var(--success-color);
 }
 
-/* Estilos para tooltips (si se usan en el futuro) */
 .tooltip-inner {
   background-color: var(--success-color);
   border-radius: 6px;
 }
 
-/* Mejorar el aspecto de los modals (si se usan) */
 .modal-content {
   border-radius: 15px;
   border: none;

@@ -45,24 +45,18 @@ def guardar_imagen(archivo, carpeta='uploads'):
         raise ValueError(f'Extensión de archivo no permitida. Extensiones permitidas: {", ".join(current_app.config["ALLOWED_EXTENSIONS"])}')
 
     try:
-        # Generar nombre único
         filename = secure_filename(archivo.filename)
         nombre_unico = generar_nombre_unico(filename)
 
-        # Crear carpeta si no existe
         upload_folder = Path(current_app.config['UPLOAD_FOLDER']) / carpeta
         upload_folder.mkdir(parents=True, exist_ok=True)
 
-        # Ruta completa del archivo
         filepath = upload_folder / nombre_unico
 
-        # Guardar archivo temporalmente
         archivo.save(str(filepath))
 
-        # Optimizar imagen con Pillow
         optimizar_imagen(filepath)
 
-        # Retornar ruta relativa desde static/
         return f"uploads/{carpeta}/{nombre_unico}"
 
     except Exception as e:
@@ -80,7 +74,6 @@ def optimizar_imagen(filepath, max_size=(1200, 1200), quality=85):
     """
     try:
         with Image.open(filepath) as img:
-            # Convertir a RGB si es necesario (para PNG con transparencia)
             if img.mode in ('RGBA', 'LA', 'P'):
                 background = Image.new('RGB', img.size, (255, 255, 255))
                 if img.mode == 'P':
@@ -88,10 +81,8 @@ def optimizar_imagen(filepath, max_size=(1200, 1200), quality=85):
                 background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
                 img = background
 
-            # Redimensionar si es necesario (manteniendo aspect ratio)
             img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
-            # Guardar con compresión
             img.save(filepath, 'JPEG', quality=quality, optimize=True)
 
     except Exception as e:
@@ -112,7 +103,6 @@ def eliminar_imagen(ruta_imagen):
         return False
 
     try:
-        # Remover 'uploads/' del inicio si existe, ya que UPLOAD_FOLDER ya incluye el path a uploads/
         ruta_relativa = ruta_imagen.replace('uploads/', '', 1) if ruta_imagen.startswith('uploads/') else ruta_imagen
         filepath = Path(current_app.config['UPLOAD_FOLDER']) / ruta_relativa
         if filepath.exists():
@@ -137,11 +127,9 @@ def validar_tamano_archivo(archivo, max_mb=16):
     if not archivo:
         return False
 
-    # Obtener tamaño del archivo
     archivo.seek(0, os.SEEK_END)
     size = archivo.tell()
-    archivo.seek(0)  # Volver al inicio
-
+    archivo.seek(0)  
     max_bytes = max_mb * 1024 * 1024
     return size <= max_bytes
 
@@ -151,6 +139,5 @@ def generar_sku_unico():
     import random
     import string
 
-    # Formato: FLO-XXXXXXXX (FLO = Florería)
     codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
     return f"FLO-{codigo}"

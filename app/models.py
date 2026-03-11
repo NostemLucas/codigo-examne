@@ -18,15 +18,12 @@ class Usuario(UserMixin, db.Model):
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.Text)
 
-    # Roles: admin, vendedor, cliente
     rol = db.Column(db.String(20), nullable=False, default='cliente')
 
-    # Campos de auditoría
     activo = db.Column(db.Boolean, default=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ultima_conexion = db.Column(db.DateTime)
 
-    # Relaciones
     pedidos = db.relationship('Pedido', backref='cliente', lazy='dynamic', cascade='all, delete-orphan')
 
     def set_password(self, password):
@@ -60,7 +57,6 @@ class Categoria(db.Model):
     activo = db.Column(db.Boolean, default=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relaciones
     productos = db.relationship('Producto', backref='categoria', lazy='dynamic', cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -76,19 +72,16 @@ class Producto(db.Model):
     descripcion = db.Column(db.Text)
     precio = db.Column(db.Numeric(10, 2), nullable=False)
     stock = db.Column(db.Integer, default=0)
-    imagen = db.Column(db.String(255))  # Ruta de la imagen
+    imagen = db.Column(db.String(255))  
     sku = db.Column(db.String(50), unique=True, index=True)
 
-    # Relación con categoría
     categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
 
-    # Campos adicionales
     activo = db.Column(db.Boolean, default=True)
     destacado = db.Column(db.Boolean, default=False)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relaciones
     detalles_pedido = db.relationship('DetallePedido', backref='producto', lazy='dynamic')
 
     @property
@@ -114,27 +107,21 @@ class Pedido(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numero_pedido = db.Column(db.String(50), unique=True, nullable=False, index=True)
 
-    # Relación con cliente
     cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
-    # Estados: pendiente, procesando, enviado, entregado, cancelado
     estado = db.Column(db.String(20), default='pendiente')
 
-    # Totales
     subtotal = db.Column(db.Numeric(10, 2), default=0.00)
     total = db.Column(db.Numeric(10, 2), default=0.00)
 
-    # Información de entrega
     direccion_entrega = db.Column(db.Text, nullable=False)
     telefono_contacto = db.Column(db.String(20))
     notas = db.Column(db.Text)
 
-    # Fechas
     fecha_pedido = db.Column(db.DateTime, default=datetime.utcnow)
     fecha_entrega = db.Column(db.DateTime)
     fecha_actualizacion = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relaciones
     detalles = db.relationship('DetallePedido', backref='pedido', lazy='dynamic', cascade='all, delete-orphan')
 
     def calcular_total(self):
@@ -153,11 +140,9 @@ class DetallePedido(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Relaciones
     pedido_id = db.Column(db.Integer, db.ForeignKey('pedidos.id'), nullable=False)
     producto_id = db.Column(db.Integer, db.ForeignKey('productos.id'), nullable=False)
 
-    # Detalles del producto en el momento de la compra
     cantidad = db.Column(db.Integer, nullable=False)
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)

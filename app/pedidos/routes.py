@@ -22,28 +22,21 @@ def listar():
     Listar pedidos con búsqueda y filtros
     Acceso: Cliente ve sus pedidos, Vendedor/Admin ven todos
     """
-    # Obtener parámetros de filtros
     busqueda = request.args.get('busqueda', '', type=str)
     estado = request.args.get('estado', 'todos', type=str)
     orden = request.args.get('orden', 'fecha_desc', type=str)
 
-    # Query base según rol
     if current_user.is_vendedor():
-        # Vendedores y admins ven todos los pedidos
         query = Pedido.query
     else:
-        # Clientes solo ven sus pedidos
         query = Pedido.query.filter_by(cliente_id=current_user.id)
 
-    # Aplicar búsqueda por número de pedido
     if busqueda:
         query = query.filter(Pedido.numero_pedido.like(f'%{busqueda}%'))
 
-    # Filtrar por estado
     if estado != 'todos':
         query = query.filter_by(estado=estado)
 
-    # Aplicar orden
     if orden == 'fecha_desc':
         query = query.order_by(Pedido.fecha_pedido.desc())
     elif orden == 'fecha_asc':
@@ -53,7 +46,6 @@ def listar():
     elif orden == 'total_asc':
         query = query.order_by(Pedido.total.asc())
 
-    # Paginación
     page = request.args.get('page', 1, type=int)
     per_page = 15
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -76,7 +68,6 @@ def ver(id):
     """
     pedido = Pedido.query.get_or_404(id)
 
-    # Verificar permisos
     if not current_user.is_vendedor() and pedido.cliente_id != current_user.id:
         flash('No tienes permiso para ver este pedido.', 'danger')
         return redirect(url_for('pedidos.listar'))
@@ -91,12 +82,10 @@ def crear():
     Crear nuevo pedido
     Acceso: Todos los usuarios autenticados
     """
-    # Obtener productos activos con stock
     productos = Producto.query.filter_by(activo=True).filter(Producto.stock > 0).all()
 
     if request.method == 'POST':
         try:
-            # Obtener datos del formulario
             form_data = {
                 'direccion_entrega': request.form.get('direccion_entrega'),
                 'telefono_contacto': request.form.get('telefono_contacto'),
@@ -104,7 +93,6 @@ def crear():
                 'detalles': []
             }
 
-            # Procesar detalles del pedido
             productos_ids = request.form.getlist('productos[]')
             cantidades = request.form.getlist('cantidades[]')
 
@@ -115,10 +103,8 @@ def crear():
                         'cantidad': int(cantidad)
                     })
 
-            # Validar datos con Pydantic
             datos = PedidoCreateSchema(**form_data)
 
-            # Verificar stock y calcular totales
             detalles_validados = []
             subtotal = 0
 
@@ -134,7 +120,6 @@ def crear():
                 if producto.stock < detalle_data.cantidad:
                     raise ValueError(f'Stock insuficiente para "{producto.nombre}". Stock disponible: {producto.stock}')
 
-                # Calcular subtotal del detalle
                 detalle_subtotal = producto.precio * detalle_data.cantidad
                 subtotal += detalle_subtotal
 
@@ -145,12 +130,10 @@ def crear():
                     'subtotal': detalle_subtotal
                 })
 
-            # Generar número de pedido único
             numero_pedido = generar_numero_pedido()
             while Pedido.query.filter_by(numero_pedido=numero_pedido).first():
                 numero_pedido = generar_numero_pedido()
 
-            # Crear pedido
             nuevo_pedido = Pedido(
                 numero_pedido=numero_pedido,
                 cliente_id=current_user.id,
@@ -163,9 +146,7 @@ def crear():
             )
 
             db.session.add(nuevo_pedido)
-            db.session.flush()  # Para obtener el ID del pedido
-
-            # Crear detalles y reducir stock
+            db.session.flush()  
             for detalle in detalles_validados:
                 detalle_pedido = DetallePedido(
                     pedido_id=nuevo_pedido.id,
@@ -176,7 +157,6 @@ def crear():
                 )
                 db.session.add(detalle_pedido)
 
-                # Reducir stock del producto
                 detalle['producto'].reducir_stock(detalle['cantidad'])
 
             db.session.commit()
@@ -210,29 +190,23 @@ def editar(id):
     """
     pedido = Pedido.query.get_or_404(id)
 
-    # No se puede editar un pedido entregado o cancelado
     if pedido.estado in ['entregado', 'cancelado']:
         flash('No se puede editar un pedido entregado o cancelado.', 'warning')
         return redirect(url_for('pedidos.ver', id=pedido.id))
 
     if request.method == 'POST':
         try:
-            # Preparar datos
             form_data = request.form.to_dict()
 
-            # Manejar fecha_entrega
             if form_data.get('fecha_entrega'):
                 try:
                     form_data['fecha_entrega'] = datetime.fromisoformat(form_data['fecha_entrega'])
                 except:
                     form_data['fecha_entrega'] = None
 
-            # Validar datos con Pydantic
             datos = PedidoUpdateSchema(**form_data)
 
-            # Actualizar campos
             if datos.estado is not None:
-                # Validar transición de estados
                 if not validar_transicion_estado(pedido.estado, datos.estado):
                     flash(f'Transición de estado inválida: {pedido.estado} -> {datos.estado}', 'danger')
                     return render_template('pedidos/editar.html', pedido=pedido)
@@ -279,22 +253,18 @@ def cancelar(id):
     """
     pedido = Pedido.query.get_or_404(id)
 
-    # Verificar permisos
     if not current_user.is_vendedor() and pedido.cliente_id != current_user.id:
         flash('No tienes permiso para cancelar este pedido.', 'danger')
         return redirect(url_for('pedidos.listar'))
 
-    # Verificar que se pueda cancelar
     if pedido.estado != 'pendiente':
         flash('Solo se pueden cancelar pedidos en estado "pendiente".', 'warning')
         return redirect(url_for('pedidos.ver', id=pedido.id))
 
     try:
-        # Devolver stock de los productos
         for detalle in pedido.detalles:
             detalle.producto.stock += detalle.cantidad
 
-        # Cambiar estado a cancelado
         pedido.estado = 'cancelado'
         db.session.commit()
 
@@ -317,24 +287,20 @@ def cambiar_estado(id):
     pedido = Pedido.query.get_or_404(id)
     nuevo_estado = request.form.get('estado')
 
-    # Validar estado
     estados_validos = ['pendiente', 'procesando', 'enviado', 'entregado', 'cancelado']
     if nuevo_estado not in estados_validos:
         flash('Estado inválido.', 'danger')
         return redirect(url_for('pedidos.ver', id=pedido.id))
 
-    # Validar transición
     if not validar_transicion_estado(pedido.estado, nuevo_estado):
         flash(f'Transición de estado inválida: {pedido.estado} -> {nuevo_estado}', 'danger')
         return redirect(url_for('pedidos.ver', id=pedido.id))
 
     try:
-        # Si se cambia a cancelado, devolver stock
         if nuevo_estado == 'cancelado' and pedido.estado != 'cancelado':
             for detalle in pedido.detalles:
                 detalle.producto.stock += detalle.cantidad
 
-        # Si se cambia a entregado, registrar fecha
         if nuevo_estado == 'entregado':
             pedido.fecha_entrega = datetime.utcnow()
 
@@ -372,7 +338,6 @@ def validar_transicion_estado(estado_actual, nuevo_estado):
     return nuevo_estado in transiciones_validas.get(estado_actual, [])
 
 
-# API endpoints para AJAX
 @pedidos_bp.route('/api/producto/<int:id>')
 @cliente_required
 def api_producto(id):
