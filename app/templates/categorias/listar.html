@@ -37,40 +37,13 @@ content %}
             ><i class="bi bi-funnel"></i> Estado</label
           >
           <select class="form-select" id="activo" name="activo">
-            <option
-              value="todos"
-              {%
-              if
-              filtro_activo=""
-              ="todos"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="todos" {% if filtro_activo == "todos" %}selected{% endif %}>
               Todas
             </option>
-            <option
-              value="activo"
-              {%
-              if
-              filtro_activo=""
-              ="activo"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="activo" {% if filtro_activo == "activo" %}selected{% endif %}>
               Activas
             </option>
-            <option
-              value="inactivo"
-              {%
-              if
-              filtro_activo=""
-              ="inactivo"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="inactivo" {% if filtro_activo == "inactivo" %}selected{% endif %}>
               Inactivas
             </option>
           </select>
@@ -81,31 +54,13 @@ content %}
             ><i class="bi bi-sort-down"></i> Ordenar por</label
           >
           <select class="form-select" id="orden" name="orden">
-            <option
-              value="nombre"
-              {%
-              if
-              orden=""
-              ="nombre"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="nombre" {% if orden == "nombre" %}selected{% endif %}>
               Nombre
             </option>
-            <option value="fecha" {% if orden="" ="fecha" %}selected{% endif %}>
+            <option value="fecha" {% if orden == "fecha" %}selected{% endif %}>
               Fecha de creación
             </option>
-            <option
-              value="productos"
-              {%
-              if
-              orden=""
-              ="productos"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="productos" {% if orden == "productos" %}selected{% endif %}>
               Cantidad de productos
             </option>
           </select>

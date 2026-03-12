@@ -4,12 +4,13 @@ Incluye: Crear, Leer, Actualizar, Cancelar, Búsqueda y Gestión de Estados
 """
 
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, jsonify, send_file
 from flask_login import current_user
 from pydantic import ValidationError
 
 from app.pedidos import pedidos_bp
 from app.pedidos.schemas import PedidoCreateSchema, PedidoUpdateSchema, generar_numero_pedido
+from app.pedidos.pdf_generator import generar_factura_pdf
 from app.auth.decorators import cliente_required, vendedor_required
 from app.models import Pedido, DetallePedido, Producto, Usuario
 from app.extensions import db
@@ -137,7 +138,7 @@ def crear():
             nuevo_pedido = Pedido(
                 numero_pedido=numero_pedido,
                 cliente_id=current_user.id,
-                estado='pendiente',
+                estado='completado',
                 direccion_entrega=datos.direccion_entrega,
                 telefono_contacto=datos.telefono_contacto,
                 notas=datos.notas,
@@ -351,3 +352,29 @@ def api_producto(id):
         'stock': producto.stock,
         'imagen': producto.imagen
     })
+
+
+@pedidos_bp.route('/<int:id>/factura')
+@cliente_required
+def descargar_factura(id):
+    """
+    Descargar factura en PDF de un pedido
+    Acceso: Cliente solo puede descargar sus facturas, Vendedor/Admin pueden todas
+    """
+    pedido = Pedido.query.get_or_404(id)
+
+    if not current_user.is_vendedor() and pedido.cliente_id != current_user.id:
+        flash('No tienes permiso para descargar esta factura.', 'danger')
+        return redirect(url_for('pedidos.listar'))
+
+    try:
+        pdf_buffer = generar_factura_pdf(pedido)
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'factura_{pedido.numero_pedido}.pdf'
+        )
+    except Exception as e:
+        flash(f'Error al generar factura: {str(e)}', 'danger')
+        return redirect(url_for('pedidos.ver', id=pedido.id))

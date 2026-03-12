@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Pedidos{% endblock %}
+{% block title %}Ventas{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-6">
-        <h2><i class="bi bi-bag-check"></i> {{ 'Todos los Pedidos' if current_user.is_vendedor() else 'Mis Pedidos' }}</h2>
+        <h2><i class="bi bi-bag-check"></i> {{ 'Todas las Ventas' if current_user.is_vendedor() else 'Mis Ventas' }}</h2>
     </div>
     <div class="col-md-6 text-end">
         <a href="{{ url_for('pedidos.crear') }}" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Nuevo Pedido
+            <i class="bi bi-plus-circle"></i> Nueva Venta
         </a>
     </div>
 </div>
@@ -19,25 +19,13 @@
     <div class="card-body">
         <form method="GET" action="{{ url_for('pedidos.listar') }}">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="busqueda" class="form-label"><i class="bi bi-search"></i> Buscar</label>
                     <input type="text" class="form-control" id="busqueda" name="busqueda"
                            value="{{ busqueda }}" placeholder="Número de pedido...">
                 </div>
 
-                <div class="col-md-3">
-                    <label for="estado" class="form-label"><i class="bi bi-funnel"></i> Estado</label>
-                    <select class="form-select" id="estado" name="estado">
-                        <option value="todos" {% if estado == 'todos' %}selected{% endif %}>Todos</option>
-                        <option value="pendiente" {% if estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-                        <option value="procesando" {% if estado == 'procesando' %}selected{% endif %}>Procesando</option>
-                        <option value="enviado" {% if estado == 'enviado' %}selected{% endif %}>Enviado</option>
-                        <option value="entregado" {% if estado == 'entregado' %}selected{% endif %}>Entregado</option>
-                        <option value="cancelado" {% if estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="orden" class="form-label"><i class="bi bi-sort-down"></i> Ordenar</label>
                     <select class="form-select" id="orden" name="orden">
                         <option value="fecha_desc" {% if orden == 'fecha_desc' %}selected{% endif %}>Más Recientes</option>
@@ -63,13 +51,13 @@
     {% for pedido in pedidos %}
     <div class="col-md-6 mb-4">
         <div class="card shadow-sm">
-            <div class="card-header bg-{{ 'success' if pedido.estado == 'entregado' else 'warning' if pedido.estado == 'procesando' else 'info' if pedido.estado == 'enviado' else 'danger' if pedido.estado == 'cancelado' else 'secondary' }} text-{{ 'dark' if pedido.estado in ['procesando', 'enviado'] else 'white' }}">
+            <div class="card-header bg-success text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="bi bi-receipt"></i> {{ pedido.numero_pedido }}
+                        <i class="bi bi-receipt-cutoff"></i> {{ pedido.numero_pedido }}
                     </h6>
-                    <span class="badge bg-{{ 'light' if pedido.estado in ['procesando', 'enviado'] else 'dark' }} text-{{ 'dark' if pedido.estado in ['procesando', 'enviado'] else 'white' }}">
-                        {{ pedido.estado|upper }}
+                    <span class="badge bg-dark">
+                        <i class="bi bi-check-circle"></i> COMPLETADO
                     </span>
                 </div>
             </div>

@@ -109,7 +109,7 @@ class Pedido(db.Model):
 
     cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
 
-    estado = db.Column(db.String(20), default='pendiente')
+    estado = db.Column(db.String(20), default='completado')
 
     subtotal = db.Column(db.Numeric(10, 2), default=0.00)
     total = db.Column(db.Numeric(10, 2), default=0.00)

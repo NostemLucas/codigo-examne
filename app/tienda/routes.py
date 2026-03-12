@@ -294,11 +294,11 @@ def procesar_compra():
         while Pedido.query.filter_by(numero_pedido=numero_pedido).first():
             numero_pedido = generar_numero_pedido()
 
-        # Crear pedido
+        # Crear pedido con estado completado (pago simulado)
         nuevo_pedido = Pedido(
             numero_pedido=numero_pedido,
             cliente_id=current_user.id,
-            estado='pendiente',
+            estado='completado',
             direccion_entrega=direccion_entrega,
             telefono_contacto=telefono_contacto,
             notas=notas
@@ -342,8 +342,8 @@ def procesar_compra():
         session.pop('carrito', None)
         session.modified = True
 
-        flash(f'¡Pedido {nuevo_pedido.numero_pedido} creado exitosamente!', 'success')
-        return redirect(url_for('pedidos.ver', id=nuevo_pedido.id))
+        # Redirigir a pantalla de procesando (simula pago)
+        return redirect(url_for('tienda.procesando_pago', pedido_id=nuevo_pedido.id))
 
     except ValueError as e:
         db.session.rollback()
@@ -379,3 +379,19 @@ def carrito_count():
     carrito = session.get('carrito', {})
     items_count = sum(item['cantidad'] for item in carrito.values())
     return jsonify({'count': items_count})
+
+
+@tienda_bp.route('/procesando-pago/<int:pedido_id>')
+@login_required
+def procesando_pago(pedido_id):
+    """
+    Pantalla de procesando pago (simulación)
+    Muestra mensaje de procesamiento y luego redirige al pedido con factura
+    """
+    pedido = Pedido.query.get_or_404(pedido_id)
+
+    if pedido.cliente_id != current_user.id and not current_user.is_vendedor():
+        flash('No tienes permiso para ver este pedido.', 'danger')
+        return redirect(url_for('tienda.index'))
+
+    return render_template('tienda/procesando_pago.html', pedido=pedido)

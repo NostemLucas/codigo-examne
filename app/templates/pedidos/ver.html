@@ -13,30 +13,20 @@
 
 <div class="row mb-4">
     <div class="col-md-8">
-        <h2><i class="bi bi-receipt"></i> Pedido {{ pedido.numero_pedido }}</h2>
+        <h2><i class="bi bi-receipt-cutoff"></i> Venta {{ pedido.numero_pedido }}</h2>
         <p class="text-muted">Realizado el {{ pedido.fecha_pedido|datetime }}</p>
     </div>
     <div class="col-md-4 text-end">
         <h3>
-            <span class="badge bg-{{ 'success' if pedido.estado == 'entregado' else 'warning' if pedido.estado == 'procesando' else 'info' if pedido.estado == 'enviado' else 'danger' if pedido.estado == 'cancelado' else 'secondary' }}">
-                {{ pedido.estado|upper }}
+            <span class="badge bg-success">
+                <i class="bi bi-check-circle"></i> COMPLETADO
             </span>
         </h3>
 
-        {% if current_user.is_vendedor() and pedido.estado not in ['entregado', 'cancelado'] %}
-        <a href="{{ url_for('pedidos.editar', id=pedido.id) }}" class="btn btn-warning">
-            <i class="bi bi-pencil"></i> Editar
+        <a href="{{ url_for('pedidos.descargar_factura', id=pedido.id) }}"
+           class="btn btn-primary btn-lg mt-2">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar Factura PDF
         </a>
-        {% endif %}
-
-        {% if pedido.estado == 'pendiente' %}
-        <form method="POST" action="{{ url_for('pedidos.cancelar', id=pedido.id) }}"
-              onsubmit="return confirm('¿Seguro que deseas cancelar este pedido? Se devolverá el stock.')" class="d-inline">
-            <button type="submit" class="btn btn-danger">
-                <i class="bi bi-x-circle"></i> Cancelar Pedido
-            </button>
-        </form>
-        {% endif %}
     </div>
 </div>
 
@@ -99,63 +89,16 @@
             </div>
         </div>
 
-        <!-- Seguimiento del Pedido -->
+        <!-- Información de Venta -->
         <div class="card shadow mt-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="bi bi-truck"></i> Seguimiento</h5>
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-check-circle-fill"></i> Venta Completada</h5>
             </div>
             <div class="card-body">
-                <div class="timeline">
-                    <div class="timeline-item {{ 'active' if pedido.estado in ['pendiente', 'procesando', 'enviado', 'entregado'] else '' }}">
-                        <div class="timeline-marker bg-{{ 'success' if pedido.estado in ['pendiente', 'procesando', 'enviado', 'entregado'] else 'secondary' }}">
-                            <i class="bi bi-check"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h6>Pedido Recibido</h6>
-                            <p class="small text-muted">{{ pedido.fecha_pedido|datetime }}</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item {{ 'active' if pedido.estado in ['procesando', 'enviado', 'entregado'] else '' }}">
-                        <div class="timeline-marker bg-{{ 'success' if pedido.estado in ['procesando', 'enviado', 'entregado'] else 'secondary' }}">
-                            <i class="bi bi-{{ 'check' if pedido.estado in ['procesando', 'enviado', 'entregado'] else 'circle' }}"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h6>Procesando</h6>
-                            <p class="small text-muted">Preparando tu pedido</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item {{ 'active' if pedido.estado in ['enviado', 'entregado'] else '' }}">
-                        <div class="timeline-marker bg-{{ 'success' if pedido.estado in ['enviado', 'entregado'] else 'secondary' }}">
-                            <i class="bi bi-{{ 'check' if pedido.estado in ['enviado', 'entregado'] else 'circle' }}"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h6>Enviado</h6>
-                            <p class="small text-muted">En camino a tu dirección</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item {{ 'active' if pedido.estado == 'entregado' else '' }}">
-                        <div class="timeline-marker bg-{{ 'success' if pedido.estado == 'entregado' else 'secondary' }}">
-                            <i class="bi bi-{{ 'check' if pedido.estado == 'entregado' else 'circle' }}"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <h6>Entregado</h6>
-                            {% if pedido.fecha_entrega %}
-                            <p class="small text-muted">{{ pedido.fecha_entrega|datetime }}</p>
-                            {% else %}
-                            <p class="small text-muted">Pendiente de entrega</p>
-                            {% endif %}
-                        </div>
-                    </div>
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle"></i> Tu venta ha sido procesada exitosamente.
+                    Puedes descargar tu factura en formato PDF haciendo clic en el botón de arriba.
                 </div>
-
-                {% if pedido.estado == 'cancelado' %}
-                <div class="alert alert-danger mt-3">
-                    <i class="bi bi-x-circle"></i> Este pedido fue cancelado
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -216,8 +159,8 @@
                     <tr>
                         <td>Estado:</td>
                         <td class="text-end">
-                            <span class="badge bg-{{ 'success' if pedido.estado == 'entregado' else 'warning' if pedido.estado == 'procesando' else 'info' if pedido.estado == 'enviado' else 'danger' if pedido.estado == 'cancelado' else 'secondary' }}">
-                                {{ pedido.estado|upper }}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> COMPLETADO
                             </span>
                         </td>
                     </tr>
@@ -233,28 +176,6 @@
             </div>
         </div>
 
-        <!-- Cambiar Estado (solo vendedor) -->
-        {% if current_user.is_vendedor() and pedido.estado not in ['entregado', 'cancelado'] %}
-        <div class="card shadow mt-3">
-            <div class="card-header bg-warning text-dark">
-                <h6 class="mb-0"><i class="bi bi-arrow-repeat"></i> Cambiar Estado</h6>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('pedidos.cambiar_estado', id=pedido.id) }}">
-                    <select class="form-select mb-2" name="estado" required>
-                        <option value="pendiente" {% if pedido.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-                        <option value="procesando" {% if pedido.estado == 'procesando' %}selected{% endif %}>Procesando</option>
-                        <option value="enviado" {% if pedido.estado == 'enviado' %}selected{% endif %}>Enviado</option>
-                        <option value="entregado" {% if pedido.estado == 'entregado' %}selected{% endif %}>Entregado</option>
-                        <option value="cancelado" {% if pedido.estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
-                    </select>
-                    <button type="submit" class="btn btn-warning w-100">
-                        <i class="bi bi-check"></i> Actualizar Estado
-                    </button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

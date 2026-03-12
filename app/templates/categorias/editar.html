@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}Editar Categoría{% endblock %} {%
-block content %}
+{% extends "base.html" %}
+{% block title %}Editar Categoría{% endblock %}
+{% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
@@ -67,12 +68,7 @@ block content %}
                 type="checkbox"
                 id="activo"
                 name="activo"
-                {%
-                if
-                categoria.activo
-                %}checked{%
-                endif
-                %}
+                {% if categoria.activo %}checked{% endif %}
               />
               <label class="form-check-label" for="activo">
                 <i

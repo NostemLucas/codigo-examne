@@ -42,63 +42,13 @@ content %}
             <label for="estado" class="form-label">
               <i class="bi bi-arrow-repeat"></i> Estado del Pedido *
             </label>
-            <select class="form-select" id="estado" name="estado" required>
-              <option
-                value="pendiente"
-                {%
-                if
-                pedido.estado=""
-                ="pendiente"
-                %}selected{%
-                endif
-                %}
-              >
-                Pendiente
-              </option>
-              <option
-                value="procesando"
-                {%
-                if
-                pedido.estado=""
-                ="procesando"
-                %}selected{%
-                endif
-                %}
-              >
-                Procesando
-              </option>
-              <option
-                value="enviado"
-                {%
-                if
-                pedido.estado=""
-                ="enviado"
-                %}selected{%
-                endif
-                %}
-              >
-                Enviado
-              </option>
-              <option
-                value="entregado"
-                {%
-                if
-                pedido.estado=""
-                ="entregado"
-                %}selected{%
-                endif
-                %}
-              >
-                Entregado
+            <select class="form-select" id="estado" name="estado" required disabled>
+              <option value="completado" selected>
+                Completado
               </option>
             </select>
             <div class="form-text">
-              <strong>Transiciones válidas:</strong>
-              <ul class="small mt-1">
-                <li>Pendiente → Procesando o Cancelado</li>
-                <li>Procesando → Enviado o Cancelado</li>
-                <li>Enviado → Entregado</li>
-              </ul>
+              <strong>Nota:</strong> Todas las ventas se completan automáticamente. El estado no se puede modificar.
             </div>
           </div>
 

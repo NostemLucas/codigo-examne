@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}Tienda - Florería{% endblock %} {%
-block extra_css %}
+{% extends "base.html" %}
+{% block title %}Tienda - Florería{% endblock %}
+{% block extra_css %}
 <style>
   .filter-sidebar {
     background: #fff;
@@ -423,52 +424,16 @@ block extra_css %}
             class="form-select form-select-sm"
             onchange="this.form.submit()"
           >
-            <option
-              value="destacados"
-              {%
-              if
-              orden=""
-              ="destacados"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="destacados" {% if orden == "destacados" %}selected{% endif %}>
               Destacados
             </option>
-            <option
-              value="nombre"
-              {%
-              if
-              orden=""
-              ="nombre"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="nombre" {% if orden == "nombre" %}selected{% endif %}>
               Nombre A-Z
             </option>
-            <option
-              value="precio_asc"
-              {%
-              if
-              orden=""
-              ="precio_asc"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="precio_asc" {% if orden == "precio_asc" %}selected{% endif %}>
               Menor precio
             </option>
-            <option
-              value="precio_desc"
-              {%
-              if
-              orden=""
-              ="precio_desc"
-              %}selected{%
-              endif
-              %}
-            >
+            <option value="precio_desc" {% if orden == "precio_desc" %}selected{% endif %}>
               Mayor precio
             </option>
           </select>
